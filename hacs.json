@@ -1,0 +1,7 @@
+{
+    "name": "Nordnet API sensors",
+    "content_in_root": true,
+    "render_readme": true,
+    "domains": ["sensor"],
+    "country": ["DK", "NO", "SE", "FI"]
+}

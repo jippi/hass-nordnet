@@ -1,0 +1,14 @@
+{
+    "version": "0.1.0",
+    "domain": "nordnet",
+    "name": "Nordnet",
+    "config_flow": true,
+    "documentation": "https://github.com/jippi/hass-nordnet",
+    "codeowners": [
+        "Christian Winther <jippignu@gmail.com>"
+    ],
+    "dependencies": [],
+    "requirements": [
+        "paho-mqtt==1.6.1"
+    ]
+}
