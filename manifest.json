@@ -1,5 +1,5 @@
 {
-    "domain": "hass-nordnet",
+    "domain": "nordnet",
     "name": "Nordnet API sensors",
     "documentation": "https://github.com/jippi/hass-nordnet",
     "issue_tracker": "https://github.com/jippi/hass-nordnet",

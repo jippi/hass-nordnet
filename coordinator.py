@@ -118,7 +118,7 @@ class Coordinator(DataUpdateCoordinator):
             session = await self._authenticated_session()
 
             _LOGGER.debug(f"Requesting stock positions from Nordnet API for account {self.config['account_id']}")
-            response = await session.get(f'https://www.nordnet.dk/api/2/accounts/{self.config["account_id"]}/positions', headers=DEFAULT_HEADERS)
+            response = await session.get(f"https://www.nordnet.dk/api/2/accounts/{self.config['account_id']}/positions", headers=DEFAULT_HEADERS)
             response.raise_for_status()
 
             self._holdings = await response.json()
@@ -210,11 +210,11 @@ class Coordinator(DataUpdateCoordinator):
 
         # if we don't have a session, force creation of a new one
         if self._session is None:
-            return True
+            return False
 
         # check the age of the session and compare with our session max age
         age = self._now_with_timezone() - self._session_created_at
-        return age > self.config["session_lifetime"]
+        return age < self.config["session_lifetime"]
 
     def _inside_trading_window(self) -> bool:
         """
