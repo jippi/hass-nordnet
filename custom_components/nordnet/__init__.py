@@ -98,6 +98,16 @@ async def async_migrate_entry(hass, config_entry: ConfigEntry):
 
         hass.config_entries.async_update_entry(config_entry, options=new)
 
+    if config_entry.version == 2:
+        new = {**config_entry.options}
+
+        # dropped timezone and use HA configured TZ instead
+        del new["timezone"]
+
+        config_entry.version = 3
+
+        hass.config_entries.async_update_entry(config_entry, options=new)
+
     _LOGGER.info("Migration to version %s successful", config_entry.version)
 
     return True

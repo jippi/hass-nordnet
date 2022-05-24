@@ -41,12 +41,11 @@ To avoid requesting data from the Nordnet API when the stock markets are closed 
 
 Outside the configured trading hours, the integration will have a ~10% probablity (rather than 100%) of making a requst for new data from Nordnet API to refresh data, mainly to keep the login session alive and catch some after market changes.
 
-The `Start trading time` and `End trading time` will be applied in the timezone you pick in the configuration menu to avoid confusing time zone conversion if your server is using UTC or another time zone than the one you live in.
+The `Start trading time` and `End trading time` uses the [Time Zone configured in Home Assistant](https://www.home-assistant.io/blog/2015/05/09/utc-time-zone-awareness/)
 
 ### Query Nordnet API interval
 
 How often the integration should refresh its data from the Nordnet API.
-
 
 ### Time between refreshing API login
 

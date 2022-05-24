@@ -4,7 +4,6 @@ import logging
 from collections.abc import Mapping
 from typing import Any
 
-import pytz
 import voluptuous as vol
 from homeassistant.config_entries import CONN_CLASS_CLOUD_POLL, ConfigEntry
 from homeassistant.core import callback
@@ -34,8 +33,6 @@ DEFAULT_SESSION_LIFETIME = {
     "seconds": 0
 }
 
-DEFAULT_TIMEZONE = "Europe/Copenhagen"
-
 # See https://github.com/home-assistant/core/blob/dev/homeassistant/helpers/selector.py
 OPTIONS_SCHEMA = vol.Schema(
     {
@@ -46,7 +43,6 @@ OPTIONS_SCHEMA = vol.Schema(
         vol.Required("trading_stop_time", default=DEFAULT_TRADING_STOP_TIME): selector.TimeSelector(),
         vol.Required("update_interval", default=DEFAULT_UPDATE_INTERVAL): selector.DurationSelector(),
         vol.Required("session_lifetime", default=DEFAULT_SESSION_LIFETIME): selector.DurationSelector(),
-        vol.Required("timezone", default=DEFAULT_TIMEZONE): selector.SelectSelector({'options': pytz.all_timezones}),
     }
 )
 
@@ -67,7 +63,7 @@ OPTIONS_FLOW: dict[str, SchemaFlowFormStep | SchemaFlowMenuStep] = {
 
 class ConfigFlowHandler(SchemaConfigFlowHandler, domain=DOMAIN):
 
-    VERSION = 2
+    VERSION = 3
 
     CONNECTION_CLASS = CONN_CLASS_CLOUD_POLL
 

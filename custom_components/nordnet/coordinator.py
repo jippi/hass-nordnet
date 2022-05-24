@@ -14,6 +14,7 @@ import async_timeout
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_create_clientsession
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
+from homeassistant.util import dt
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -39,7 +40,6 @@ class CoordinatorConfig(TypedDict):
     username: str
     password: str
     account_id: int
-    timezone: ZoneInfo
     trading_start_time: time
     trading_stop_time: time
     session_lifetime: timedelta
@@ -198,7 +198,7 @@ class Coordinator(DataUpdateCoordinator):
             _LOGGER.debug("[session] API bastic auth login OK")
 
         self._session = session
-        self._session_created_at = self._now_with_timezone()
+        self._session_created_at = dt.now()
 
         _LOGGER.debug("[session] Returning the new HTTP session")
         return self._session
@@ -213,7 +213,7 @@ class Coordinator(DataUpdateCoordinator):
             return False
 
         # check the age of the session and compare with our session max age
-        age = self._now_with_timezone() - self._session_created_at
+        age = dt.now() - self._session_created_at
         return age < self.config["session_lifetime"]
 
     def _inside_trading_window(self) -> bool:
@@ -221,7 +221,7 @@ class Coordinator(DataUpdateCoordinator):
         Check if we're within the trading window
         """
 
-        now = self._now_with_timezone()
+        now = dt.now()
 
         # trading doesn't happen on Saturday or Sunday, hardcoding this for now
         # since I'm not having any stocks outside EU and US trading hours
@@ -238,13 +238,6 @@ class Coordinator(DataUpdateCoordinator):
 
         return True
 
-    def _now_with_timezone(self) -> datetime:
-        """
-        Get datetime.now() but with the configured timezone
-        """
-
-        return datetime.now(tz=self.config["timezone"])
-
     @staticmethod
     def map_config(input: dict) -> CoordinatorConfig:
         """
@@ -254,7 +247,6 @@ class Coordinator(DataUpdateCoordinator):
         config = dict(input)
 
         config["account_id"] = int(config["account_id"])
-        config["timezone"] = ZoneInfo(config["timezone"])
 
         config["trading_start_time"] = time.fromisoformat(config["trading_start_time"])
         config["trading_stop_time"] = time.fromisoformat(config["trading_stop_time"])
