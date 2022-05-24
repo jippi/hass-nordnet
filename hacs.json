@@ -1,6 +1,6 @@
 {
     "name": "Nordnet API sensors",
-    "content_in_root": true,
+    "content_in_root": false,
     "render_readme": true,
     "domains": ["sensor"],
     "country": ["DK", "NO", "SE", "FI"]
