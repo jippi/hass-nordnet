@@ -149,7 +149,7 @@ class Coordinator(DataUpdateCoordinator):
             return False
 
         # outside trading hours, no dice
-        _LOGGER.info(
+        _LOGGER.debug(
             f"Not inside trading hours ({self.config['trading_start_time']} - {self.config['trading_stop_time']}), will not query Nordnet API")
         return False
 
