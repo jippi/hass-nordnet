@@ -1,5 +1,5 @@
 {
-    "name": "Nordnet API sensors",
+    "name": "Nordnet investments API sensors",
     "render_readme": true,
     "country": ["DK", "NO", "SE", "FI"]
 }
