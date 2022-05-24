@@ -5,33 +5,17 @@ from collections.abc import Mapping
 from typing import Any
 
 import voluptuous as vol
-from homeassistant.config_entries import CONN_CLASS_CLOUD_POLL, ConfigEntry
+from homeassistant.config_entries import CONN_CLASS_CLOUD_POLL
 from homeassistant.core import callback
 from homeassistant.helpers import selector
 from homeassistant.helpers.schema_config_entry_flow import (
     SchemaConfigFlowHandler, SchemaFlowFormStep, SchemaFlowMenuStep)
 
-from .const import DOMAIN, PLATFORM
+from .const import (DEFAULT_ACCOUNT_ID, DEFAULT_SESSION_LIFETIME,
+                    DEFAULT_TRADING_START_TIME, DEFAULT_TRADING_STOP_TIME,
+                    DEFAULT_UPDATE_INTERVAL, DOMAIN, PLATFORM)
 
 _LOGGER = logging.getLogger(__name__)
-
-DEFAULT_ACCOUNT_ID = 1
-
-# Covers most of the European and American markets
-DEFAULT_TRADING_START_TIME = "09:00:00"
-DEFAULT_TRADING_STOP_TIME = "23:00:00"
-
-DEFAULT_UPDATE_INTERVAL = {
-    "hours": 0,
-    "minutes": 0,
-    "seconds": 30
-},
-
-DEFAULT_SESSION_LIFETIME = {
-    "hours": 24,
-    "minutes": 0,
-    "seconds": 0
-}
 
 # See https://github.com/home-assistant/core/blob/dev/homeassistant/helpers/selector.py
 OPTIONS_SCHEMA = vol.Schema(

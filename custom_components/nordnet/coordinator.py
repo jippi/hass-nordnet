@@ -7,7 +7,6 @@ import logging
 import random
 from datetime import datetime, time, timedelta
 from typing import TypedDict
-from zoneinfo import ZoneInfo
 
 import aiohttp
 import async_timeout
@@ -16,21 +15,9 @@ from homeassistant.helpers.aiohttp_client import async_create_clientsession
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from homeassistant.util import dt
 
+from .const import DEFAULT_HEADERS, UPDATE_TIMEOUT
+
 _LOGGER = logging.getLogger(__name__)
-
-"""
-Headers sent in all requests to Nordnet APIs
-"""
-DEFAULT_HEADERS = {
-    'client-id': 'NEXT',
-    'sub-client-id': 'NEXT',
-}
-
-"""
-The number of seconds requesting data from Nordnet API can take
-before the request is canceled
-"""
-UPDATE_TIMEOUT = 10  # seconds
 
 
 class CoordinatorConfig(TypedDict):
@@ -146,7 +133,7 @@ class Coordinator(DataUpdateCoordinator):
         if self._outside_trading_window_probability():
             _LOGGER.debug(
                 f"Not inside trading hours ({self.config['trading_start_time']} - {self.config['trading_stop_time']}), but will query Nordnet API anyway")
-            return False
+            return True
 
         # outside trading hours, no dice
         _LOGGER.debug(
@@ -171,7 +158,7 @@ class Coordinator(DataUpdateCoordinator):
             _LOGGER.debug(f"Returning existing HTTP session")
             return self._session
 
-        _LOGGER.info(f"[session] Creating new HTTP session")
+        _LOGGER.debug(f"[session] Creating new HTTP session")
 
         session = async_create_clientsession(self._hass)
 
