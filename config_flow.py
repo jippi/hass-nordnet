@@ -29,8 +29,7 @@ DEFAULT_UPDATE_INTERVAL = {
 },
 
 DEFAULT_SESSION_LIFETIME = {
-    "days": 1,
-    "hours": 0,
+    "hours": 24,
     "minutes": 0,
     "seconds": 0
 }
@@ -46,7 +45,7 @@ OPTIONS_SCHEMA = vol.Schema(
         vol.Required("trading_start_time", default=DEFAULT_TRADING_START_TIME): selector.TimeSelector(),
         vol.Required("trading_stop_time", default=DEFAULT_TRADING_STOP_TIME): selector.TimeSelector(),
         vol.Required("update_interval", default=DEFAULT_UPDATE_INTERVAL): selector.DurationSelector(),
-        vol.Required("session_lifetime", default=DEFAULT_SESSION_LIFETIME): selector.DurationSelector({'enable_day': True}),
+        vol.Required("session_lifetime", default=DEFAULT_SESSION_LIFETIME): selector.DurationSelector(),
         vol.Required("timezone", default=DEFAULT_TIMEZONE): selector.SelectSelector({'options': pytz.all_timezones}),
     }
 )
