@@ -1,7 +1,7 @@
 {
     "domain": "nordnet",
     "name": "Nordnet API sensors",
-    "documentation": "https://github.com/jippi/hass-nordnet",
+    "documentation": "https://github.com/jippi/hass-nordnet#configuration",
     "issue_tracker": "https://github.com/jippi/hass-nordnet",
     "dependencies": [],
     "after_dependencies": [],
