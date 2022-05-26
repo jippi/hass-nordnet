@@ -114,7 +114,6 @@ class NordnetOptionsFlowHandler(OptionsFlow):
 
         if user_input is not None:
             account_info, errors = await get_account_details(self.hass, user_input)
-            _LOGGER.warn(json.dumps(account_info))
             if not errors:
                 user_input['account_currency'] = account_info['account_currency'].lower()
                 return self.async_create_entry(title=user_input['username'], data=user_input)
