@@ -110,6 +110,9 @@ class Coordinator(DataUpdateCoordinator):
         """
 
         if self._should_make_request() is False:
+            self._debounced_refresh.async_cancel()
+            self._schedule_refresh()
+
             return
 
         return super()._handle_refresh_interval(_now)
