@@ -90,6 +90,9 @@ class Coordinator(DataUpdateCoordinator):
 
         return None
 
+    async def test_configuration(self):
+        await self._authenticated_session()
+
     async def _async_update_data(self) -> None:
         """
         Called by Home Assistant every config['update_interval'] in sensor.py to refresh data

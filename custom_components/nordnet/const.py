@@ -15,12 +15,12 @@ DEFAULT_TRADING_STOP_TIME = "23:00:00"
 
 DEFAULT_UPDATE_INTERVAL = {
     "hours": 0,
-    "minutes": 0,
-    "seconds": 30
-},
+    "minutes": 1,
+    "seconds": 0
+}
 
 DEFAULT_SESSION_LIFETIME = {
-    "hours": 24,
+    "hours": 8,
     "minutes": 0,
     "seconds": 0
 }

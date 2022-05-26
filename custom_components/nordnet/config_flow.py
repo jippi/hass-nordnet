@@ -1,24 +1,26 @@
 from __future__ import annotations
 
+import copy
 import logging
-from collections.abc import Mapping
 from typing import Any
 
+import aiohttp
 import voluptuous as vol
-from homeassistant.config_entries import CONN_CLASS_CLOUD_POLL
-from homeassistant.core import callback
+from homeassistant.config_entries import (CONN_CLASS_CLOUD_POLL, ConfigEntry,
+                                          ConfigFlow, OptionsFlow)
+from homeassistant.core import HomeAssistant, callback
+from homeassistant.data_entry_flow import FlowResult
 from homeassistant.helpers import selector
-from homeassistant.helpers.schema_config_entry_flow import (
-    SchemaConfigFlowHandler, SchemaFlowFormStep, SchemaFlowMenuStep)
 
 from .const import (DEFAULT_ACCOUNT_ID, DEFAULT_SESSION_LIFETIME,
                     DEFAULT_TRADING_START_TIME, DEFAULT_TRADING_STOP_TIME,
                     DEFAULT_UPDATE_INTERVAL, DOMAIN, PLATFORM)
+from .coordinator import Coordinator
 
 _LOGGER = logging.getLogger(__name__)
 
 # See https://github.com/home-assistant/core/blob/dev/homeassistant/helpers/selector.py
-OPTIONS_SCHEMA = vol.Schema(
+DATA_SCHEMA = vol.Schema(
     {
         vol.Required("username"): selector.TextSelector(),
         vol.Required("password"): selector.TextSelector({'type': 'password'}),
@@ -30,35 +32,85 @@ OPTIONS_SCHEMA = vol.Schema(
     }
 )
 
-CONFIG_SCHEMA = vol.Schema(
-    {
 
-    }
-).extend(OPTIONS_SCHEMA.schema)
+async def validate_connection(hass: HomeAssistant, user_input: dict) -> dict:
+    """
+    Validate connection and credentials to Nordnet API when creating or
+    updating a configuration entry
+    """
+    try:
+        c = Coordinator(hass, Coordinator.map_config(user_input))
+        await c.test_configuration()
+    except aiohttp.ClientConnectionError as ex:
+        _LOGGER.error(f'ClientConnectorError: {str(ex)}')
+        return {'username': 'connection_error'}
+    except aiohttp.ClientResponseError as ex:
+        _LOGGER.error(f'HTTPError: {str(ex)}')
+        if ex.status > 400 and ex.status < 500:
+            return {'username': 'auth_error'}
 
-CONFIG_FLOW: dict[str, SchemaFlowFormStep | SchemaFlowMenuStep] = {
-    "user": SchemaFlowFormStep(CONFIG_SCHEMA)
-}
-
-OPTIONS_FLOW: dict[str, SchemaFlowFormStep | SchemaFlowMenuStep] = {
-    "init": SchemaFlowFormStep(OPTIONS_SCHEMA)
-}
+        return {'username': 'http_error'}
+    except Exception as ex:
+        _LOGGER.error(f'Generic Exception: {str(ex)}')
+        return {'username': 'unknown'}
 
 
-class ConfigFlowHandler(SchemaConfigFlowHandler, domain=DOMAIN):
+def enrich_schema(user_input: dict) -> vol.Schema:
+    if user_input is None:
+        return DATA_SCHEMA
 
+    """
+    Set 'suggested_value' based on existing option values in the config entry
+    so the options form has currently configured values
+    """
+    schema = {}
+    for key, val in DATA_SCHEMA.schema.items():
+        new_key = key
+
+        if key in user_input and isinstance(key, vol.Marker):
+            # Copy the marker to not modify the flow schema
+            new_key = copy.copy(key)
+            new_key.description = {"suggested_value": user_input[key]}
+
+        schema[new_key] = val
+
+    return vol.Schema(schema)
+
+
+class NordnetConfigFlow(ConfigFlow, domain=DOMAIN):
     VERSION = 3
 
     CONNECTION_CLASS = CONN_CLASS_CLOUD_POLL
 
-    config_flow = CONFIG_FLOW
-
-    options_flow = OPTIONS_FLOW
-
+    @staticmethod
     @callback
-    def async_config_entry_title(self, options: Mapping[str, Any]) -> str:
-        """
-        Generate default entry title
-        """
+    def async_get_options_flow(config_entry: ConfigEntry,) -> NordnetOptionsFlowHandler:
+        return NordnetOptionsFlowHandler(config_entry)
 
-        return options['username']
+    async def async_step_user(self, user_input: dict[str, Any] | None = None) -> FlowResult:
+        """Handle the user step."""
+        errors = {}
+
+        if user_input is not None:
+            errors = await validate_connection(self.hass, user_input)
+            if not errors:
+                return self.async_create_entry(title=user_input['username'], data={}, options=user_input)
+
+        return self.async_show_form(step_id="user", data_schema=enrich_schema(user_input), errors=errors)
+
+
+class NordnetOptionsFlowHandler(OptionsFlow):
+
+    def __init__(self, config_entry: ConfigEntry) -> None:
+        self.config_entry = config_entry
+
+    async def async_step_init(self, user_input: dict[str, Any] | None = None) -> FlowResult:
+        errors = {}
+
+        if user_input is not None:
+            errors = await validate_connection(self.hass, user_input)
+            if not errors:
+                return self.async_create_entry(title=user_input['username'], data=user_input)
+
+        schema = enrich_schema(user_input or self.config_entry.options)
+        return self.async_show_form(step_id="init", data_schema=schema, errors=errors)

@@ -1,7 +1,10 @@
 {
+    "title": "Configure account",
     "config": {
+        "flow_title": "Nordnet",
         "step": {
             "user": {
+                "title": "Please configure your Nordnet integration",
                 "data": {
                     "username": "Username @ Nordnet",
                     "password": "Password @ Nordnet",
@@ -25,6 +28,7 @@
     "options": {
         "step": {
             "init": {
+                "title": "Please configure your Nordnet integration",
                 "data": {
                     "username": "Username @ Nordnet",
                     "password": "Password @ Nordnet",
