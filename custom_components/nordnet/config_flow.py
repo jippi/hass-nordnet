@@ -24,11 +24,11 @@ DATA_SCHEMA = vol.Schema(
     {
         vol.Required("username"): selector.TextSelector(),
         vol.Required("password"): selector.TextSelector({'type': 'password'}),
-        vol.Required("account_id", description={"suggested_value": DEFAULT_ACCOUNT_ID}): selector.NumberSelector({'mode': 'box', 'step': 1}),
-        vol.Required("trading_start_time", description={"suggested_value": DEFAULT_TRADING_START_TIME}): selector.TimeSelector(),
-        vol.Required("trading_stop_time", description={"suggested_value": DEFAULT_TRADING_STOP_TIME}): selector.TimeSelector(),
-        vol.Required("update_interval", description={"suggested_value": DEFAULT_UPDATE_INTERVAL}): selector.DurationSelector(),
-        vol.Required("session_lifetime", description={"suggested_value": DEFAULT_SESSION_LIFETIME}): selector.DurationSelector(),
+        vol.Required("account_id", default=DEFAULT_ACCOUNT_ID): selector.NumberSelector({'mode': 'box', 'step': 1}),
+        vol.Required("trading_start_time", default=DEFAULT_TRADING_START_TIME): selector.TimeSelector(),
+        vol.Required("trading_stop_time", default=DEFAULT_TRADING_STOP_TIME): selector.TimeSelector(),
+        vol.Required("update_interval", default=DEFAULT_UPDATE_INTERVAL): selector.DurationSelector(),
+        vol.Required("session_lifetime", default=DEFAULT_SESSION_LIFETIME): selector.DurationSelector(),
     }
 )
 
