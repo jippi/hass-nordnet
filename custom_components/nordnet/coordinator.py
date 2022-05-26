@@ -108,6 +108,7 @@ class Coordinator(DataUpdateCoordinator):
         as it will be a lot more spammy in logs, and will advertly always "succeed" outside trading windows
         making error tracking pretty hard
         """
+
         if self._should_make_request() is False:
             return
 
