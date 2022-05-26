@@ -1,7 +1,6 @@
 {
-    "title": "Nordnet API sensors",
     "config": {
-        "flow_title": "Nordnet",
+        "title": "Nordnet",
         "step": {
             "user": {
                 "title": "Please configure your Nordnet integration",
