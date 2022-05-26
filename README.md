@@ -63,8 +63,9 @@ There are a ton of attributes and they look like this (AMD stock example)
 
 ```yaml
 state_class: measurement
-accno: *number
-accid: *number
+device_class: monetary
+icon: mdi:cash
+friendly_name: Stock price for Advanced Micro Devices (AMD)
 instrument:
   mifid2_category: 0
   price_type: monetary_amount
@@ -87,23 +88,35 @@ instrument:
   symbol: AMD
   isin_code: US0079031078
   name: Advanced Micro Devices
-market_value_acc_dkk: *float     # total market value of your stocks (DKK) - ${quantity} * ${acq_price_acc_dkk}
-acq_price_acc_dkk: *float        # average acquisition price per stock when you bought it (DKK)
-acq_price_usd: *float            # average acquisition price per stock when you bought it, in the native currency of the stock (e.g. USD)
-acq_price_native: *float         # average acquisition price per stock when you bought it, in the native currency of the stock (e.g. USD)
-market_value_usd: *float         # total market value of your stocks, in the native currency of the stock (e.g. USD)
-market_value_native: *float      # total market value of your stocks, in the native currency of the stock (e.g. USD)
-morning_price_usd: *float        # price of the stock at opening of the market today, in the native currency of the stock (e.g. USD)
-morning_price_native: *float     # price of the stock at opening of the market today, in the native currency of the stock (e.g. USD)
-main_market_price_usd: *float    # current market price for 1 stock, in the native currency of the stock (e.g. USD)
-main_market_price_native: *float # current market price for 1 stock, in the native currency of the stock (e.g. USD)
-quantity: *number                # number of stocks you own
-roi_dkk: *float                  # return of investment in DKK
-roi_percent: *float              # return of investment in %
-unit_of_measurement: DKK         # used for the "state" value which is DKK
-device_class: monetary           # used for the "state" value which is DKK
-icon: mdi:cash                   # gotta love the icons!
-friendly_name: Stock price for Advanced Micro Devices (AMD)
+
+#################################################################################
+# Generic
+#################################################################################
+
+account_id: *number                 # account id / index (1,2,3,4....)
+account_number: *number             # account number
+quantity: *number                   # number of stocks you own
+unit_of_measurement: *string        # used for the "state" value which is ${account_currency}
+
+#################################################################################
+# Account values, in the ${account_currency} currency (e.g. DKK, SEK, NOK)
+#################################################################################
+
+account_currency: *string           # The currency of the trading account
+account_acquisition_price: *float   # Average acquisition price per stock when you bought it
+account_market_value: *float        # Total market value of your stocks - ${quantity} * ${account_acquisition_price}
+account_roi: *float                 # Return Of Investment value
+account_roi_percent: *float         # Return Of Investment percent
+
+#################################################################################
+# Position / stock values, in the ${position_currency} currency (e.g. USD, EUR)
+#################################################################################
+
+position_currency: *string          # The currency of the position (e.g. the stock, for APPL it would be USD)
+position_acquisition_price: *float  # average acquisition price per stock when you bought it, in the native currency of the stock (e.g. USD)
+position_market_price: *float       # current market price for 1 stock, in the native currency of the stock (e.g. USD)
+position_market_value: *float       # total market value of your stocks, in the native currency of the stock (e.g. USD)
+position_morning_price: *float      # price of the stock at opening of the market today, in the native currency of the stock (e.g. USD)
 ```
 
 ## Debugging

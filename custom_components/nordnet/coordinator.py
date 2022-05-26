@@ -27,6 +27,7 @@ class CoordinatorConfig(TypedDict):
     username: str
     password: str
     account_id: int
+    account_currency: str
     trading_start_time: time
     trading_stop_time: time
     session_lifetime: timedelta
@@ -69,6 +70,9 @@ class Coordinator(DataUpdateCoordinator):
         # property in parent DataUpdateCoordinator
         self.update_interval = self.config["update_interval"]
 
+    def account_currency(self)->str:
+        return self.config['account_currency']
+
     def holdings(self) -> dict:
         """
         Return the full raw holdings response from Nordnet
@@ -90,8 +94,13 @@ class Coordinator(DataUpdateCoordinator):
 
         return None
 
-    async def test_configuration(self):
-        await self._authenticated_session()
+    async def get_account_details(self)->dict:
+        session = await self._authenticated_session()
+        response = await session.get(f"https://www.nordnet.dk/api/2/accounts/{self.config['account_id']}/info", headers=DEFAULT_HEADERS)
+        response.raise_for_status()
+
+        data = await response.json()
+        return data[0]
 
     async def _async_update_data(self) -> None:
         """

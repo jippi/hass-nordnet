@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import copy
+import json
 import logging
 from typing import Any
 
@@ -33,26 +34,29 @@ DATA_SCHEMA = vol.Schema(
 )
 
 
-async def validate_connection(hass: HomeAssistant, user_input: dict) -> dict:
+async def get_account_details(hass: HomeAssistant, user_input: dict) -> tuple[dict, dict]:
     """
     Validate connection and credentials to Nordnet API when creating or
     updating a configuration entry
     """
     try:
         c = Coordinator(hass, Coordinator.map_config(user_input))
-        await c.test_configuration()
+        return await c.get_account_details(), None
+
     except aiohttp.ClientConnectionError as ex:
         _LOGGER.error(f'ClientConnectorError: {str(ex)}')
-        return {'username': 'connection_error'}
+        return None, {'username': 'connection_error'}
+
     except aiohttp.ClientResponseError as ex:
         _LOGGER.error(f'HTTPError: {str(ex)}')
         if ex.status > 400 and ex.status < 500:
-            return {'username': 'auth_error'}
+            return None, {'username': 'auth_error'}
 
-        return {'username': 'http_error'}
+        return None, {'username': 'http_error'}
+
     except Exception as ex:
         _LOGGER.error(f'Generic Exception: {str(ex)}')
-        return {'username': 'unknown'}
+        return None, {'username': 'unknown'}
 
 
 def enrich_schema(user_input: dict) -> vol.Schema:
@@ -92,8 +96,9 @@ class NordnetConfigFlow(ConfigFlow, domain=DOMAIN):
         errors = {}
 
         if user_input is not None:
-            errors = await validate_connection(self.hass, user_input)
+            account_info, errors = await get_account_details(self.hass, user_input)
             if not errors:
+                user_input['account_currency'] = account_info['account_currency'].lower()
                 return self.async_create_entry(title=user_input['username'], data={}, options=user_input)
 
         return self.async_show_form(step_id="user", data_schema=enrich_schema(user_input), errors=errors)
@@ -108,8 +113,10 @@ class NordnetOptionsFlowHandler(OptionsFlow):
         errors = {}
 
         if user_input is not None:
-            errors = await validate_connection(self.hass, user_input)
+            account_info, errors = await get_account_details(self.hass, user_input)
+            _LOGGER.warn(json.dumps(account_info))
             if not errors:
+                user_input['account_currency'] = account_info['account_currency'].lower()
                 return self.async_create_entry(title=user_input['username'], data=user_input)
 
         schema = enrich_schema(user_input or self.config_entry.options)

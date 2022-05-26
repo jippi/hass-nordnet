@@ -49,7 +49,7 @@ class NordnetStock(CoordinatorEntity, SensorEntity):
 
     @property
     def state(self):
-        return self._attributes['market_value_acc_dkk']
+        return self._attributes['account_market_value']
 
     @property
     def state_class(self):
@@ -61,7 +61,7 @@ class NordnetStock(CoordinatorEntity, SensorEntity):
 
     @property
     def native_unit_of_measurement(self):
-        return "DKK"
+        return self.coordinator.account_currency().upper()
 
     @property
     def device_class(self):
@@ -99,48 +99,50 @@ class NordnetStock(CoordinatorEntity, SensorEntity):
         data made available via the API response
         """
 
-        # make a copy before modifying it
-        input = dict(input)
-
+        # the native currency of the position (e.g. USD, NOK, SEK)
+        # not to be confused with the account currency
         ncur = input['main_market_price']['currency'].lower()
 
-        # remap market_value_acc[currency,value] to flat value since its always in DKK
-        input['market_value_acc_dkk'] = input['market_value_acc']['value']
+        # make a copy before modifying it
+        input = dict(input)
+        input['position_currency'] = ncur
+        input['account_currency'] = self.coordinator.account_currency()
+
+        # (account) market value
+        input['account_market_value'] = input['market_value_acc']['value']
+        input['position_market_value'] = input['market_value']['value']
         del input['market_value_acc']
-
-        # remap acq_price_acc[currency,value] to flat value since its always in DKK
-        input['acq_price_acc_dkk'] = input['acq_price_acc']['value']
-        del input['acq_price_acc']
-
-        # remap acq_price to currency specific field
-        input[f'acq_price_{ncur}'] = input['acq_price']['value']
-        input[f'acq_price_native'] = input['acq_price']['value']
-        del input['acq_price']
-
-        # remap market_value to currency specific field
-        input[f'market_value_{ncur}'] = input['market_value']['value']
-        input[f'market_value_native'] = input['market_value']['value']
         del input['market_value']
 
-        # remap morning_price to currency specific field
-        input[f'morning_price_{ncur}'] = input['morning_price']['value']
-        input[f'morning_price_native'] = input['morning_price']['value']
+        # acquisition price
+        input['account_acquisition_price'] = input['acq_price_acc']['value']
+        input['position_acquisition_price'] = input['acq_price']['value']
+        del input['acq_price_acc']
+        del input['acq_price']
+
+        # morning price
+        input['position_morning_price'] = input['morning_price']['value']
         del input['morning_price']
 
-        # remap main_market_price to currency specific field
-        input[f'main_market_price_{ncur}'] = input['main_market_price']['value']
-        input[f'main_market_price_native'] = input['main_market_price']['value']
+        # main_market_price
+        input['position_market_price'] = input['main_market_price']['value']
         del input['main_market_price']
 
         # rename qty field
         input['quantity'] = input['qty']
         del input['qty']
 
-        # compute Return On Investment (in DKK)
-        input['roi_dkk'] = input['market_value_acc_dkk'] - (input['quantity'] * input['acq_price_acc_dkk'])
+        # compute Return On Investment (in account currency)
+        input['account_roi'] = input['account_market_value'] - (input['quantity'] * input['account_acquisition_price'])
 
         # compute Return On Investment %
-        input['roi_percent'] = (input['main_market_price_native'] - input['acq_price_native']) / input['acq_price_native'] * 100
+        input['account_roi_percent'] = (input['position_market_price'] - input['position_acquisition_price']) / input['position_acquisition_price'] * 100
+
+        input['account_number'] = input['accno']
+        del input['accno']
+
+        input['account_id'] = input['accid']
+        del input['accid']
 
         # cleanup things we don't care about
         del input['is_custom_gav']
