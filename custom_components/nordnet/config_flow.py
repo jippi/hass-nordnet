@@ -96,8 +96,6 @@ class NordnetConfigFlow(ConfigFlow, domain=DOMAIN):
             if not errors:
                 return self.async_create_entry(title=user_input['username'], data={}, options=user_input)
 
-        _LOGGER.warn(errors)
-
         return self.async_show_form(step_id="user", data_schema=enrich_schema(user_input), errors=errors)
 
 
@@ -113,8 +111,6 @@ class NordnetOptionsFlowHandler(OptionsFlow):
             errors = await validate_connection(self.hass, user_input)
             if not errors:
                 return self.async_create_entry(title=user_input['username'], data=user_input)
-
-        _LOGGER.warn(errors)
 
         schema = enrich_schema(user_input or self.config_entry.options)
         return self.async_show_form(step_id="init", data_schema=schema, errors=errors)
