@@ -102,15 +102,23 @@ class Coordinator(DataUpdateCoordinator):
         data = await response.json()
         return data[0]
 
+    async def _handle_refresh_interval(self, _now: datetime) -> None:
+        """
+        Overriding parent func to prevent any calls to _async_update_data outside trading windows
+        as it will be a lot more spammy in logs, and will advertly always "succeed" outside trading windows
+        making error tracking pretty hard
+        """
+        if self._should_make_request() is False:
+            return
+
+        return super()._handle_refresh_interval(_now)
+
     async def _async_update_data(self) -> None:
         """
         Called by Home Assistant every config['update_interval'] in sensor.py to refresh data
         """
 
         _LOGGER.debug("Refreshing data from Nordnet API")
-
-        if self._should_make_request() is False:
-            return
 
         async with async_timeout.timeout(UPDATE_TIMEOUT):
             _LOGGER.debug("Getting HTTP session")
@@ -231,8 +239,6 @@ class Coordinator(DataUpdateCoordinator):
 
         # Trading is open between 09:00 and 23:00 in Europe/Copenhagen
         if not self.config["trading_start_time"] <= now.time() < self.config["trading_stop_time"]:
-            _LOGGER.debug(
-                f"{now.strftime('%H:%M:%S')} is outside trading hours ({self.config['trading_start_time']} to {self.config['trading_stop_time']}), skipping...")
             return False
 
         return True
