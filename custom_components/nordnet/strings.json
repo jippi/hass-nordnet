@@ -1,0 +1,13 @@
+{
+    "config": {
+        "error": {
+            "base": "Failed to connect, please try again",
+            "auth_error": "FUN AUTH",
+            "http_error": "HTTP ERROR",
+            "unknown": "Unexpected error"
+        },
+        "abort": {
+            "already_configured": "Device is already configured"
+        }
+    }
+}

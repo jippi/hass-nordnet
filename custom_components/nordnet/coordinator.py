@@ -90,6 +90,9 @@ class Coordinator(DataUpdateCoordinator):
 
         return None
 
+    async def test(self):
+        await self._authenticated_session(force_new=True)
+
     async def _async_update_data(self) -> None:
         """
         Called by Home Assistant every config['update_interval'] in sensor.py to refresh data
@@ -147,14 +150,14 @@ class Coordinator(DataUpdateCoordinator):
 
         return random.randint(0, 10) == 5
 
-    async def _authenticated_session(self) -> aiohttp.ClientSession:
+    async def _authenticated_session(self, force_new=False) -> aiohttp.ClientSession:
         """
         Returns a HTTP Session containing all required Cookies for a making authenticated
         api requests to the Nordnet API
         """
         _LOGGER.debug("Called _get_session")
 
-        if self._has_valid_session():
+        if not force_new and self._has_valid_session():
             _LOGGER.debug(f"Returning existing HTTP session")
             return self._session
 
