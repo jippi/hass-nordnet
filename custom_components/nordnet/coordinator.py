@@ -115,7 +115,7 @@ class Coordinator(DataUpdateCoordinator):
 
             return
 
-        return super()._handle_refresh_interval(_now)
+        return await super()._handle_refresh_interval(_now)
 
     async def _async_update_data(self) -> None:
         """
