@@ -1,13 +1,52 @@
 {
+    "title": "Nordnet API sensors",
     "config": {
+        "flow_title": "Nordnet",
+        "step": {
+            "user": {
+                "title": "Please configure your Nordnet integration",
+                "data": {
+                    "username": "Username @ Nordnet",
+                    "password": "Password @ Nordnet",
+                    "account_id": "Account ID @ Nordnet",
+                    "trading_start_time": "Start of trading time",
+                    "trading_stop_time": "End of trading time",
+                    "update_interval": "Query Nordnet API interval",
+                    "session_lifetime": "Time between refreshing API login",
+                    "timezone": "Timezone for market opening hours"
+                }
+            }
+        },
         "error": {
             "base": "Failed to connect, please try again",
-            "auth_error": "FUN AUTH",
-            "http_error": "HTTP ERROR",
+            "connection_error": "Connection error?",
+            "auth_error": "Could not login to Nordnet - check credentials",
+            "http_error": "Unknown HTTP error - please check logs",
             "unknown": "Unexpected error"
+        }
+    },
+    "options": {
+        "step": {
+            "init": {
+                "title": "Please configure your Nordnet integration",
+                "data": {
+                    "username": "Username @ Nordnet",
+                    "password": "Password @ Nordnet",
+                    "account_id": "Account ID @ Nordnet",
+                    "trading_start_time": "Start of trading time",
+                    "trading_stop_time": "End of trading time",
+                    "update_interval": "Query Nordnet API interval",
+                    "session_lifetime": "Time between refreshing API login",
+                    "timezone": "Timezone for market opening hours"
+                }
+            }
         },
-        "abort": {
-            "already_configured": "Device is already configured"
+        "error": {
+            "base": "Failed to connect, please try again",
+            "connection_error": "Connection error?",
+            "auth_error": "Could not login to Nordnet - check credentials",
+            "http_error": "Unknown HTTP error - please check logs",
+            "unknown": "Unexpected error"
         }
     }
 }
