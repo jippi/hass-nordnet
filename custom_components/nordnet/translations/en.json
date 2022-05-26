@@ -1,6 +1,5 @@
 {
     "config": {
-        "flow_title": "Nordnet",
         "step": {
             "user": {
                 "data": {
