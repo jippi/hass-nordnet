@@ -20,7 +20,7 @@ DEFAULT_UPDATE_INTERVAL = {
 }
 
 DEFAULT_SESSION_LIFETIME = {
-    "hours": 12,
+    "hours": 8,
     "minutes": 0,
     "seconds": 0
 }
