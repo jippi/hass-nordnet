@@ -47,10 +47,6 @@ The `Start trading time` and `End trading time` uses the [Time Zone configured i
 
 How often the integration should refresh its data from the Nordnet API.
 
-### Time between refreshing API login
-
-How often should the intergration `login` from scratch again. Its mainly here to avoid login session timeouts and similar.
-
 ## State and attributes
 
 A sensor for holding will be created with the `state` being the the total market value of the holding in `DKK`
