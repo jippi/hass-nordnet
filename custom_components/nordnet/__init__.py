@@ -91,8 +91,8 @@ async def async_migrate_entry(hass, config_entry: ConfigEntry):
         new["trading_start_time"] = new["trading_start_hour"]
         new["trading_stop_time"] = new["trading_stop_hour"]
 
-        del new["trading_start_hour"]
-        del new["trading_stop_hour"]
+        new.pop("trading_start_hour")
+        new.pop("trading_stop_hour")
 
         config_entry.version = 2
 
@@ -102,7 +102,8 @@ async def async_migrate_entry(hass, config_entry: ConfigEntry):
         new = {**config_entry.options}
 
         # dropped timezone and use HA configured TZ instead
-        del new["timezone"]
+        if "timezone" in new:
+            del new["timezone"]
 
         config_entry.version = 3
 
@@ -112,7 +113,8 @@ async def async_migrate_entry(hass, config_entry: ConfigEntry):
         new = {**config_entry.options}
 
         # dropped session_lifetime since sessions always expire after 1h
-        del new["session_lifetime"]
+        if "session_lifetime" in new:
+            del new["session_lifetime"]
 
         config_entry.version = 4
 
