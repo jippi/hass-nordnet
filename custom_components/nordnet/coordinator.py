@@ -117,7 +117,7 @@ class Coordinator(DataUpdateCoordinator):
 
         return await super()._handle_refresh_interval(_now)
 
-    async def _async_update_data(self) -> None:
+    async def _async_update_data(self, is_retry: bool = False) -> None:
         """
         Called by Home Assistant every config['update_interval'] in sensor.py to refresh data
         """
@@ -125,16 +125,34 @@ class Coordinator(DataUpdateCoordinator):
         _LOGGER.debug("Refreshing data from Nordnet API")
 
         async with async_timeout.timeout(UPDATE_TIMEOUT):
-            _LOGGER.debug("Getting HTTP session")
-            session = await self._authenticated_session()
+            try:
+                _LOGGER.debug("Getting HTTP session")
+                session = await self._authenticated_session()
 
-            _LOGGER.debug(f"Requesting stock positions from Nordnet API for account {self.config['account_id']}")
-            response = await session.get(f"https://www.nordnet.dk/api/2/accounts/{self.config['account_id']}/positions", headers=DEFAULT_HEADERS)
-            response.raise_for_status()
+                _LOGGER.debug(f"Requesting stock positions from Nordnet API for account {self.config['account_id']}")
+                response = await session.get(f"https://www.nordnet.dk/api/2/accounts/{self.config['account_id']}/positions", headers=DEFAULT_HEADERS)
+                response.raise_for_status()
 
-            self._holdings = await response.json()
+                self._holdings = await response.json()
 
-            _LOGGER.debug("Successfully updated stock positions from Nordnet API")
+                if is_retry:
+                    _LOGGER.info("Retry successful! Updated stock positions from Nordnet API")
+                    return
+
+                _LOGGER.debug("Successfully updated stock positions from Nordnet API")
+
+            except aiohttp.ClientResponseError as ex:
+                """
+                If we see authentication error, reset the session so we can create a fresh session
+                and retry the update
+                """
+                if is_retry is False and (ex.status > 400 and ex.status < 500):
+                    _LOGGER.warn(f"Authentication error, retrying with fresh login session: {ex}")
+                    self._session = None
+                    return await self._async_update_data(is_retry=True)
+
+                raise ex
+
 
     def _should_make_request(self) -> bool:
         """
