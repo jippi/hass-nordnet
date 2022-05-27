@@ -108,6 +108,16 @@ async def async_migrate_entry(hass, config_entry: ConfigEntry):
 
         hass.config_entries.async_update_entry(config_entry, options=new)
 
+    if config_entry.version == 3:
+        new = {**config_entry.options}
+
+        # dropped session_lifetime since sessions always expire after 1h
+        del new["session_lifetime"]
+
+        config_entry.version = 4
+
+        hass.config_entries.async_update_entry(config_entry, options=new)
+
     _LOGGER.info("Migration to version %s successful", config_entry.version)
 
     return True

@@ -12,7 +12,6 @@
                     "trading_start_time": "Start of trading time",
                     "trading_stop_time": "End of trading time",
                     "update_interval": "Query Nordnet API interval",
-                    "session_lifetime": "Time between refreshing API login",
                     "timezone": "Timezone for market opening hours"
                 }
             }
@@ -36,7 +35,6 @@
                     "trading_start_time": "Start of trading time",
                     "trading_stop_time": "End of trading time",
                     "update_interval": "Query Nordnet API interval",
-                    "session_lifetime": "Time between refreshing API login",
                     "timezone": "Timezone for market opening hours"
                 }
             }

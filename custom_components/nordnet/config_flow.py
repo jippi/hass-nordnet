@@ -13,7 +13,7 @@ from homeassistant.core import HomeAssistant, callback
 from homeassistant.data_entry_flow import FlowResult
 from homeassistant.helpers import selector
 
-from .const import (DEFAULT_ACCOUNT_ID, DEFAULT_SESSION_LIFETIME,
+from .const import (DEFAULT_ACCOUNT_ID,
                     DEFAULT_TRADING_START_TIME, DEFAULT_TRADING_STOP_TIME,
                     DEFAULT_UPDATE_INTERVAL, DOMAIN, PLATFORM)
 from .coordinator import Coordinator
@@ -29,7 +29,6 @@ DATA_SCHEMA = vol.Schema(
         vol.Required("trading_start_time", default=DEFAULT_TRADING_START_TIME): selector.TimeSelector(),
         vol.Required("trading_stop_time", default=DEFAULT_TRADING_STOP_TIME): selector.TimeSelector(),
         vol.Required("update_interval", default=DEFAULT_UPDATE_INTERVAL): selector.DurationSelector(),
-        vol.Required("session_lifetime", default=DEFAULT_SESSION_LIFETIME): selector.DurationSelector(),
     }
 )
 
@@ -82,7 +81,7 @@ def enrich_schema(user_input: dict) -> vol.Schema:
 
 
 class NordnetConfigFlow(ConfigFlow, domain=DOMAIN):
-    VERSION = 3
+    VERSION = 4
 
     CONNECTION_CLASS = CONN_CLASS_CLOUD_POLL
 

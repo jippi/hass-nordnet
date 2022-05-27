@@ -261,7 +261,7 @@ class Coordinator(DataUpdateCoordinator):
         config["trading_stop_time"] = time.fromisoformat(config["trading_stop_time"])
 
         config["update_interval"] = duration_to_timedelta(config["update_interval"])
-        config["session_lifetime"] = duration_to_timedelta(config["session_lifetime"])
+        config["session_lifetime"] = timedelta(minutes=55) # sessions expire after 1h
 
         return config
 
