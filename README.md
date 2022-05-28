@@ -1,6 +1,6 @@
 # Nordnet for Home Assistant
 
-[![hacs_badge](https://img.shields.io/badge/HACS-Default-orange.svg)](https://github.com/custom-components/hacs)
+[![hacs_badge](https://img.shields.io/badge/HACS-Default-orange.svg)](https://github.com/hacs/integration)
 
 The `nordnet` component is a Home Assistant custom component for fetching your Nordnet holdings (investments) from their API and expose them as sensors.
 
