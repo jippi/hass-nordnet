@@ -1,5 +1,10 @@
 {
     "name": "Nordnet investments API sensors",
-    "render_readme": true,
-    "country": ["DK", "NO", "SE", "FI"]
+    "country": [
+        "DK",
+        "NO",
+        "SE",
+        "FI"
+    ],
+    "render_readme": true
 }
