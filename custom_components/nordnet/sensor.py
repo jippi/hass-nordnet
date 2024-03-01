@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import traceback
 
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.config_entries import ConfigEntry
@@ -34,10 +35,11 @@ class NordnetStock(CoordinatorEntity, SensorEntity):
     def __init__(self, holding, coordinator):
         super().__init__(coordinator)
 
+        self._state = "unavailable"
         self._attributes = self._remap(holding)
-        self._name = f"Stock price for {self._attributes['instrument']['name']} ({self._attributes['instrument']['symbol']})"
-        self._unique_id = "nordnet_stock_{}".format(self._attributes['instrument']['symbol'].replace(' ', '_')).lower()
-        self._symbol = self._attributes['instrument']['symbol']
+        self._name = f"Stock price for {holding['instrument']['name']} ({holding['instrument']['symbol']})"
+        self._unique_id = "nordnet_stock_{}".format(holding['instrument']['symbol'].replace(' ', '_')).lower()
+        self._symbol = holding['instrument']['symbol']
 
     @property
     def name(self):
@@ -49,7 +51,7 @@ class NordnetStock(CoordinatorEntity, SensorEntity):
 
     @property
     def state(self):
-        return self._attributes['account_market_value']
+        return self._state
 
     @property
     def state_class(self):
@@ -90,63 +92,75 @@ class NordnetStock(CoordinatorEntity, SensorEntity):
         self.async_write_ha_state()
 
     def _remap(self, input) -> dict:
-        """
-        Change the raw Nordnet API response into a more flat dictionary where possible
-        to ease use in templates, and allow the 'datadog' integration to emit metrics
-        for all the numeric values automatically
+        raw_input = input
 
-        Also adds some basic ROI attributes that are kinda best-effort based on the
-        data made available via the API response
-        """
+        try:
+            """
+            Change the raw Nordnet API response into a more flat dictionary where possible
+            to ease use in templates, and allow the 'datadog' integration to emit metrics
+            for all the numeric values automatically
 
-        # the native currency of the position (e.g. USD, NOK, SEK)
-        # not to be confused with the account currency
-        ncur = input['main_market_price']['currency'].lower()
+            Also adds some basic ROI attributes that are kinda best-effort based on the
+            data made available via the API response
+            """
 
-        # make a copy before modifying it
-        input = dict(input)
-        input['position_currency'] = ncur
-        input['account_currency'] = self.coordinator.account_currency()
+            # the native currency of the position (e.g. USD, NOK, SEK)
+            # not to be confused with the account currency
+            ncur = input['main_market_price']['currency'].lower()
 
-        # (account) market value
-        input['account_market_value'] = input['market_value_acc']['value']
-        input['position_market_value'] = input['market_value']['value']
-        del input['market_value_acc']
-        del input['market_value']
+            # make a copy before modifying it
+            input = dict(input)
+            input['position_currency'] = ncur
+            input['account_currency'] = self.coordinator.account_currency()
 
-        # acquisition price
-        input['account_acquisition_price'] = input['acq_price_acc']['value']
-        input['position_acquisition_price'] = input['acq_price']['value']
-        del input['acq_price_acc']
-        del input['acq_price']
+            # (account) market value
+            input['account_market_value'] = input['market_value_acc']['value']
+            input['position_market_value'] = input['market_value']['value']
+            del input['market_value_acc']
+            del input['market_value']
 
-        # morning price
-        input['position_morning_price'] = input['morning_price']['value']
-        del input['morning_price']
+            # acquisition price
+            input['account_acquisition_price'] = input['acq_price_acc']['value']
+            input['position_acquisition_price'] = input['acq_price']['value']
+            del input['acq_price_acc']
+            del input['acq_price']
 
-        # main_market_price
-        input['position_market_price'] = input['main_market_price']['value']
-        del input['main_market_price']
+            # morning price
+            input['position_morning_price'] = input['morning_price']['value']
+            del input['morning_price']
 
-        # rename qty field
-        input['quantity'] = input['qty']
-        del input['qty']
+            # main_market_price
+            input['position_market_price'] = input['main_market_price']['value']
+            del input['main_market_price']
 
-        # compute Return On Investment (in account currency)
-        input['account_roi'] = input['account_market_value'] - (input['quantity'] * input['account_acquisition_price'])
+            # rename qty field
+            input['quantity'] = input['qty']
+            del input['qty']
 
-        # compute Return On Investment %
-        input['account_roi_percent'] = (input['position_market_price'] - input['position_acquisition_price']) / input['position_acquisition_price'] * 100
+            # compute Return On Investment (in account currency)
+            input['account_roi'] = input['account_market_value'] - (input['quantity'] * input['account_acquisition_price'])
 
-        input['account_number'] = input['accno']
-        del input['accno']
+            # compute Return On Investment %
+            input['account_roi_percent'] = (input['position_market_price'] - input['position_acquisition_price']) / input['position_acquisition_price'] * 100
 
-        input['account_id'] = input['accid']
-        del input['accid']
+            input['account_number'] = input['accno']
+            del input['accno']
 
-        # cleanup things we don't care about
-        del input['is_custom_gav']
-        del input['margin_percent']
-        del input['pawn_percent']
+            input['account_id'] = input['accid']
+            del input['accid']
 
-        return input
+            # cleanup things we don't care about
+            del input['is_custom_gav']
+            del input['margin_percent']
+            del input['pawn_percent']
+
+            self._state = input['account_market_value']
+            return input
+        except Exception as ex:
+            self._state = "unavailable"
+            return {
+                "error": traceback.format_exc(),
+                "input": input,
+                "raw_input": raw_input,
+            }
+
