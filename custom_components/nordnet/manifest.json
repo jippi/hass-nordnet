@@ -1,14 +1,16 @@
 {
-    "name": "Nordnet API sensors",
     "domain": "nordnet",
-    "documentation": "https://github.com/jippi/hass-nordnet#configuration",
-    "issue_tracker": "https://github.com/jippi/hass-nordnet/issues",
-    "dependencies": [],
+    "name": "Nordnet API sensors",
     "after_dependencies": [],
-    "codeowners": ["@jippi"],
-    "requirements": [],
+    "codeowners": [
+        "@jippi"
+    ],
+    "config_flow": true,
+    "dependencies": [],
+    "documentation": "https://github.com/jippi/hass-nordnet#configuration",
     "iot_class": "cloud_polling",
+    "issue_tracker": "https://github.com/jippi/hass-nordnet/issues",
     "loggers": [],
-    "version": "0.3.0",
-    "config_flow": true
+    "requirements": [],
+    "version": "0.3.0"
 }
