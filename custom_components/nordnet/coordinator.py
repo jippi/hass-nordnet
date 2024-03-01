@@ -102,7 +102,7 @@ class Coordinator(DataUpdateCoordinator):
         data = await response.json()
         return data[0]
 
-    async def _handle_refresh_interval(self, _now: datetime) -> None:
+    async def _handle_refresh_interval(self, _now: datetime | None = None) -> None:
         """
         Overriding parent func to prevent any calls to _async_update_data outside trading windows
         as it will be a lot more spammy in logs, and will advertly always "succeed" outside trading windows
