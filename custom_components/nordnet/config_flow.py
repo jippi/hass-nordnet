@@ -7,7 +7,7 @@ from typing import Any
 
 import aiohttp
 import voluptuous as vol
-from homeassistant.config_entries import (CONN_CLASS_CLOUD_POLL, ConfigEntry,
+from homeassistant.config_entries import (ConfigEntry,
                                           ConfigFlow, OptionsFlow)
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.data_entry_flow import FlowResult
@@ -82,8 +82,6 @@ def enrich_schema(user_input: dict) -> vol.Schema:
 
 class NordnetConfigFlow(ConfigFlow, domain=DOMAIN):
     VERSION = 4
-
-    CONNECTION_CLASS = CONN_CLASS_CLOUD_POLL
 
     @staticmethod
     @callback
